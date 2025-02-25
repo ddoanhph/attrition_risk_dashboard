@@ -19,13 +19,11 @@ st.set_page_config(
 )
 
 
-# Function to load and prepare data - in a real scenario, you would load your actual data
+# Function to load and prepare data - in a real scenario, load  actual data
 @st.cache_data
 def load_data():
-    # This is a placeholder - in your actual implementation, you'll load your data
     # For demo purposes, we'll create a synthetic dataset that mimics your structure
 
-    # In reality, you would use something like:
     # df = pd.read_csv('your_data.csv')
     # or
     # df = your_existing_dataframe
@@ -36,7 +34,7 @@ def load_data():
 
     divisions = ['Technology', 'Operations', 'Marketing', 'Finance', 'HR', 'Sales']
     bands = ['BZ', 'BII', 'BIII', 'BIV', 'BV']
-    regions = ['EMEA', 'APAC', 'NA', 'LATAM']
+    regions = ['USA']
     age_groups = ['20-30', '31-40', '41-50', '51+']
 
     data = {
