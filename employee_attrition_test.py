@@ -54,7 +54,7 @@ def load_data():
     ]
 
     bands = ['BZ', 'BII', 'BIII', 'BIV', 'BV']
-    regions = ['EMEA', 'Americas', 'APAC']
+    regions = ['USA']
     age_groups = ['20-30', '31-40', '41-50', '51+']
 
     data = {
