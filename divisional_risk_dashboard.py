@@ -5,17 +5,57 @@ import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.ensemble import GradientBoostingClassifier
 from typing import Dict, List
-from collections import Counter
 
-# [Previous color palette and configuration remain the same]
+# Airbus Color Palette
+AIRBUS_COLORS = {
+    'primary_blue': '#00205B',   # Dark Airbus Blue
+    'secondary_blue': '#5BA3D4', # Lighter Airbus Blue
+    'grey': '#6D6E71',           # Airbus Grey
+    'light_blue': '#A4D4E9',     # Light Blue
+    'accent_blue': '#00A3E1',    # Bright Accent Blue
+}
+
+# Set page configuration
+st.set_page_config(
+    page_title="Divisional Attrition Risk Analysis",
+    page_icon="✈️",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Custom CSS for Airbus theme
+st.markdown(f"""
+<style>
+    .stApp {{
+        background-color: white;
+    }}
+    .stTabs [data-baseweb="tab-list"] {{
+        gap: 10px;
+    }}
+    .stTabs [data-baseweb="tab"] {{
+        background-color: {AIRBUS_COLORS['light_blue']};
+        color: {AIRBUS_COLORS['primary_blue']};
+        border-radius: 4px;
+    }}
+    .stTabs [data-baseweb="tab"][data-selected="true"] {{
+        background-color: {AIRBUS_COLORS['primary_blue']};
+        color: white;
+    }}
+</style>
+""", unsafe_allow_html=True)
 
 @st.cache_data
-def load_advanced_data() -> pd.DataFrame:
+def load_division_data() -> pd.DataFrame:
     """
-    Create comprehensive synthetic data for individual-level attrition risk analysis
+    Create comprehensive synthetic data for divisional-level attrition risk analysis
+    
+    Enhanced data generation with more nuanced risk factors:
+    - Expanded division complexity
+    - More granular strategic importance
+    - Additional contextual factors
     """
     np.random.seed(42)
-    n_samples = 1200
+    n_samples = 1000
 
     divisions = [
         'Technology', 'Operations', 'Marketing', 
@@ -23,34 +63,47 @@ def load_advanced_data() -> pd.DataFrame:
         'Product Development', 'Customer Support'
     ]
     
-    bands = ['Junior', 'Mid-Level', 'Senior', 'Expert', 'Leadership']
-    age_groups = ['22-30', '31-40', '41-50', '51+']
+    # More nuanced strategic importance mapping
+    strategic_importance = {
+        'Technology': 0.9,
+        'Product Development': 0.85,
+        'Engineering': 0.8,
+        'Operations': 0.75,
+        'Marketing': 0.7,
+        'Sales': 0.7,
+        'Finance': 0.6,
+        'Customer Support': 0.5,
+        'HR': 0.5
+    }
 
+    # Enhanced data generation with more contextual factors
     data = {
-        'Employee_ID': [f'EMP{i:04d}' for i in range(1, n_samples + 1)],
         'Division': np.random.choice(divisions, size=n_samples),
-        'Band': np.random.choice(bands, size=n_samples),
-        'Age_Group': np.random.choice(age_groups, size=n_samples),
-        'Career_Velocity': np.random.uniform(0.1, 2.0, size=n_samples),
-        'Role_Stability': np.random.uniform(0, 1, size=n_samples),
-        'Career_Growth_Potential': np.random.uniform(0.1, 1.0, size=n_samples),
+        'Strategic_Importance': [strategic_importance[div] for div in np.random.choice(divisions, size=n_samples)],
+        'Project_Complexity': np.random.uniform(0.1, 1.0, size=n_samples),
+        'Team_Size': np.random.randint(5, 75, size=n_samples),
+        'Innovation_Score': np.random.uniform(0.1, 1.0, size=n_samples),
         'External_Opportunities': np.random.uniform(0.1, 1.0, size=n_samples),
-        'Work_Satisfaction': np.random.uniform(0.1, 1.0, size=n_samples),
-        'Team_Size': np.random.randint(5, 75, size=n_samples)
+        'Career_Growth_Potential': np.random.uniform(0.1, 1.0, size=n_samples),
+        'Work_Life_Balance': np.random.uniform(0.1, 1.0, size=n_samples),
+        'Compensation_Satisfaction': np.random.uniform(0.1, 1.0, size=n_samples)
     }
 
     df = pd.DataFrame(data)
 
-    # Simulate attrition risk calculation
+    # More sophisticated attrition risk calculation
     df['Attrition_Risk'] = (
-        0.25 * (1 - df['Role_Stability']) + 
-        0.2 * (1 - df['Career_Growth_Potential']) + 
-        0.15 * df['External_Opportunities'] + 
-        0.1 * (1 - df['Work_Satisfaction']) + 
-        0.3 * np.random.uniform(0, 1, size=n_samples)
+        0.25 * df['Strategic_Importance'] + 
+        0.2 * df['Project_Complexity'] + 
+        0.1 * (1 / df['Team_Size']) + 
+        0.15 * (1 - df['Innovation_Score']) + 
+        0.1 * df['External_Opportunities'] +
+        0.1 * (1 - df['Career_Growth_Potential']) +
+        0.05 * (1 - df['Work_Life_Balance']) +
+        0.05 * (1 - df['Compensation_Satisfaction'])
     )
 
-    # Risk categorization
+    # Refined risk categorization
     df['Risk_Category'] = pd.cut(
         df['Attrition_Risk'],
         bins=[0, 0.3, 0.6, 1],
@@ -59,54 +112,107 @@ def load_advanced_data() -> pd.DataFrame:
 
     return df
 
-def generate_strategic_insights(df: pd.DataFrame) -> Dict[str, Dict[str, str]]:
+def analyze_divisional_risks(df: pd.DataFrame) -> tuple:
     """
-    Generate comprehensive strategic insights for different risk levels and divisions
+    Comprehensive divisional risk analysis with multiple perspectives
     """
-    risk_insights = {
-        'High': {
-            'Technology': "🚨 Immediate Intervention Required: Design retention programs, conduct stay interviews, review compensation and career paths.",
-            'Operations': "🔍 Critical Risk Zone: Enhance role clarity, provide skill development, and create internal mobility opportunities.",
-            'Marketing': "💡 Talent Preservation Strategy: Focus on creative autonomy, innovation platforms, and leadership development.",
-        },
-        'Medium': {
-            'Finance': "📊 Proactive Engagement: Implement mentorship programs, review performance recognition, and provide challenging projects.",
-            'Sales': "💼 Career Momentum Initiatives: Create clear progression paths, introduce performance-based incentives.",
-            'HR': "👥 Talent Development Focus: Strengthen internal growth opportunities, design targeted training programs.",
-        },
-        'Low': {
-            'Engineering': "🛠️ Maintenance Mode: Continue current engagement strategies, periodic pulse surveys, maintain positive work environment.",
-            'Product Development': "🚀 Continuous Improvement: Regular skill upgrades, innovation challenges, cross-functional exposure.",
-        }
-    }
-    return risk_insights
-
-def analyze_divisional_risks(df: pd.DataFrame):
-    """
-    Comprehensive divisional risk analysis
-    """
+    # Divisional risk summary with expanded metrics
     division_risk = df.groupby('Division').agg({
-        'Attrition_Risk': ['mean', 'count'],
-        'Risk_Category': lambda x: x.value_counts(normalize=True).get('High', 0) * 100
+        'Attrition_Risk': ['mean', 'std'],
+        'Division': 'count',
+        'Strategic_Importance': 'mean',
+        'Project_Complexity': 'mean',
+        'Innovation_Score': 'mean'
     }).reset_index()
     
-    division_risk.columns = ['Division', 'Avg_Risk', 'Total_Employees', 'High_Risk_Percentage']
-    division_risk = division_risk.sort_values('High_Risk_Percentage', ascending=False)
-    
-    return division_risk
+    division_risk.columns = [
+        'Division', 'Avg_Risk', 'Risk_Volatility', 
+        'Total_Teams', 'Avg_Strategic_Importance', 
+        'Avg_Project_Complexity', 'Avg_Innovation_Score'
+    ]
+    division_risk = division_risk.sort_values('Avg_Risk', ascending=False)
+
+    # Risk category distribution per division
+    risk_distribution = df.groupby(['Division', 'Risk_Category']).size().unstack(fill_value=0)
+    risk_distribution_pct = risk_distribution.div(risk_distribution.sum(axis=1), axis=0) * 100
+
+    return division_risk, risk_distribution_pct
+
+def generate_strategic_insights() -> Dict[str, str]:
+    """
+    Generate comprehensive strategic insights for each division
+    """
+    return {
+        'Technology': """
+        🚨 High Risk Division
+        - Implement advanced retention strategies
+        - Create specialized career development programs
+        - Enhance innovation and autonomy opportunities
+        - Competitive compensation and cutting-edge project assignments
+        """,
+        'Product Development': """
+        🔍 Strategic Focus Needed
+        - Develop clear career progression paths
+        - Encourage cross-functional skill development
+        - Create mentorship and innovation incubation programs
+        - Balance project complexity and team resources
+        """,
+        'Engineering': """
+        ⚙️ Proactive Risk Management
+        - Invest in continuous learning and certification programs
+        - Implement flexible work arrangements
+        - Create technical leadership tracks
+        - Regular skill assessment and growth opportunities
+        """,
+        'Operations': """
+        🔄 Operational Stability Required
+        - Improve team dynamics and communication
+        - Provide cross-training and skill diversification
+        - Enhance process efficiency and autonomy
+        - Create performance recognition mechanisms
+        """,
+        'Marketing': """
+        🎨 Creative Retention Strategies
+        - Foster creative freedom and idea sharing
+        - Implement project diversity initiatives
+        - Provide marketing technology training
+        - Create collaborative and inspiring work environments
+        """,
+        'Sales': """
+        💼 Performance-Driven Approach
+        - Design competitive incentive structures
+        - Provide sales skill enhancement workshops
+        - Create clear career progression paths
+        - Implement performance and achievement recognition
+        """,
+        'Finance': """
+        📊 Strategic Talent Preservation
+        - Develop financial career development programs
+        - Offer competitive compensation packages
+        - Create analytical and strategic role opportunities
+        - Implement financial skill enhancement initiatives
+        """,
+        'Customer Support': """
+        🤝 Support Team Engagement
+        - Design empowerment and skill development programs
+        - Create clear career progression in support roles
+        - Implement technology and communication training
+        - Develop recognition and growth opportunities
+        """,
+        'HR': """
+        👥 Internal Talent Management
+        - Strengthen internal mobility programs
+        - Create HR professional development framework
+        - Implement strategic talent acquisition skills
+        - Design comprehensive HR career pathways
+        """
+    }
 
 def main():
     # Load and analyze data
-    df = load_advanced_data()
-    division_risk = analyze_divisional_risks(df)
-    strategic_insights = generate_strategic_insights(df)
-
-    # Streamlit App Configuration
-    st.set_page_config(
-        page_title="Talent Risk Management Dashboard",
-        page_icon="🛡️",
-        layout="wide"
-    )
+    df = load_division_data()
+    division_risk, risk_distribution_pct = analyze_divisional_risks(df)
+    strategic_insights = generate_strategic_insights()
 
     # Sidebar Filters
     st.sidebar.header("🔍 Analysis Filters")
@@ -119,7 +225,7 @@ def main():
     risk_filter = st.sidebar.multiselect(
         "Filter by Risk Category", 
         options=['Low', 'Medium', 'High'], 
-        default=['High', 'Medium', 'Low']
+        default=['Low', 'Medium', 'High']
     )
 
     # Filter DataFrame
@@ -128,71 +234,110 @@ def main():
         (df['Risk_Category'].isin(risk_filter))
     ]
 
-    # Main Dashboard
-    st.title('🏆 Talent Risk Management Dashboard')
-    
-    # Key Metrics
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        total_employees = len(filtered_df)
-        high_risk_count = len(filtered_df[filtered_df['Risk_Category'] == 'High'])
-        st.metric("Total Employees", total_employees, "")
-    
-    with col2:
-        high_risk_percentage = (high_risk_count / total_employees * 100) if total_employees > 0 else 0
-        st.metric("High-Risk Employees", f"{high_risk_count} ({high_risk_percentage:.1f}%)", 
-                  f"Risk Level: {'🔴 Critical' if high_risk_percentage > 15 else '🟠 Moderate'}")
-    
-    with col3:
-        medium_risk_count = len(filtered_df[filtered_df['Risk_Category'] == 'Medium'])
-        medium_risk_percentage = (medium_risk_count / total_employees * 100) if total_employees > 0 else 0
-        st.metric("Medium-Risk Employees", f"{medium_risk_count} ({medium_risk_percentage:.1f}%)", 
-                  f"Potential Intervention: {'🟡 Recommended' if medium_risk_percentage > 20 else '🟢 Stable'}")
+    # Main title
+    st.title('🛫 Divisional Attrition Risk Analysis')
+    st.markdown("**Comprehensive Talent Risk Management Framework**")
 
-    # Tabs for Detailed Analysis
+    # Tabs
     tab1, tab2, tab3, tab4 = st.tabs([
         "🔥 Risk Overview", 
-        "📊 Divisional Analysis", 
+        "📊 Divisional Comparisons", 
         "🧩 Risk Factors", 
-        "🚀 Strategic Recommendations"
+        "🚀 Strategic Insights"
     ])
 
     with tab1:
-        st.subheader('📈 Risk Distribution')
+        st.subheader('📈 Divisional Risk Distribution')
         
-        # Risk Category Pie Chart
-        risk_distribution = filtered_df['Risk_Category'].value_counts()
+        # Explanation
+        st.info("""
+        **Tab Focus**: Visualize overall risk distribution across divisions.
+        - Heatmap shows risk category percentages
+        - Pie chart illustrates overall organizational risk
+        """)
+        
+        # Heatmap of Risk Levels
+        fig = px.imshow(
+            risk_distribution_pct, 
+            labels=dict(x="Risk Category", y="Division", color="Percentage"),
+            color_continuous_scale='Blues',
+            title='Risk Category Distribution Across Divisions'
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Pie Chart of Overall Risk Categories
+        overall_risk_dist = filtered_df['Risk_Category'].value_counts(normalize=True) * 100
         fig = px.pie(
-            names=risk_distribution.index, 
-            values=risk_distribution.values,
-            title='Employee Risk Category Distribution',
-            color_discrete_sequence=['red', 'orange', 'green']
+            values=overall_risk_dist.values, 
+            names=overall_risk_dist.index,
+            title='Overall Risk Category Distribution',
+            color_discrete_sequence=[
+                AIRBUS_COLORS['primary_blue'], 
+                AIRBUS_COLORS['secondary_blue'], 
+                AIRBUS_COLORS['light_blue']
+            ]
         )
         st.plotly_chart(fig, use_container_width=True)
 
     with tab2:
-        st.subheader('🔬 Divisional Risk Breakdown')
+        st.subheader('🔬 Comparative Divisional Risk Analysis')
         
-        # Divisional Risk Table
-        st.dataframe(
-            division_risk[division_risk['Division'].isin(selected_divisions)].style
-            .format({
-                'Avg_Risk': '{:.2f}',
-                'High_Risk_Percentage': '{:.1f}%'
-            })
-            .background_gradient(cmap='Reds')
+        # Explanation
+        st.info("""
+        **Tab Focus**: Deep dive into divisional risk variations.
+        - Bar chart shows average attrition risks
+        - Scatter plot correlates team size with risk volatility
+        """)
+        
+        # Filter division risk data
+        filtered_division_risk = division_risk[division_risk['Division'].isin(selected_divisions)]
+        
+        # Bar chart of average risks
+        fig = px.bar(
+            filtered_division_risk, 
+            x='Division', 
+            y='Avg_Risk',
+            color='Division',
+            title='Average Attrition Risk by Division',
+            color_discrete_sequence=[AIRBUS_COLORS['primary_blue'], 
+                                     AIRBUS_COLORS['secondary_blue'], 
+                                     AIRBUS_COLORS['accent_blue']]
         )
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Scatter plot of risk vs team size
+        fig = px.scatter(
+            filtered_division_risk, 
+            x='Total_Teams', 
+            y='Avg_Risk', 
+            size='Risk_Volatility',
+            color='Division',
+            hover_data=['Division'],
+            title='Risk Correlation with Team Size',
+            labels={'Total_Teams': 'Number of Teams', 'Avg_Risk': 'Average Risk'},
+            color_discrete_sequence=[AIRBUS_COLORS['primary_blue'], 
+                                     AIRBUS_COLORS['secondary_blue'], 
+                                     AIRBUS_COLORS['accent_blue']]
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
     with tab3:
-        st.subheader('🎯 Key Risk Factors')
+        st.subheader('🔍 Key Risk Factors Analysis')
         
-        # Risk Factor Analysis
-        factor_columns = [
-            'Career_Velocity', 'Role_Stability', 
-            'Career_Growth_Potential', 'External_Opportunities'
+        # Explanation
+        st.info("""
+        **Tab Focus**: Understand complex risk factor interactions.
+        - Correlation matrix reveals factor relationships
+        - Box plots show factor distributions across divisions
+        """)
+        
+        # Correlation of risk factors
+        correlation_factors = [
+            'Strategic_Importance', 'Project_Complexity', 
+            'Team_Size', 'Innovation_Score', 
+            'External_Opportunities', 'Career_Growth_Potential'
         ]
-        correlation_matrix = filtered_df[factor_columns + ['Attrition_Risk']].corr()
+        correlation_matrix = filtered_df[correlation_factors + ['Attrition_Risk']].corr()
         
         fig = px.imshow(
             correlation_matrix, 
@@ -203,27 +348,34 @@ def main():
         st.plotly_chart(fig, use_container_width=True)
 
     with tab4:
-        st.subheader('🎯 Strategic Talent Management')
+        st.subheader('🎯 Strategic Talent Management Insights')
         
-        # Top Risk Division Recommendations
-        if not division_risk.empty:
-            top_risk_division = division_risk.iloc[0]['Division']
-            top_risk_percentage = division_risk.iloc[0]['High_Risk_Percentage']
-            
-            st.warning(f"**Top Risk Division: {top_risk_division}**")
-            st.markdown(f"🚨 High-Risk Percentage: {top_risk_percentage:.1f}%")
-            
-            risk_level = 'High' if top_risk_percentage > 15 else 'Medium'
-            st.info(strategic_insights.get(risk_level, {}).get(top_risk_division, "No specific insights available"))
+        # Explanation
+        st.info("""
+        **Tab Focus**: Actionable recommendations for HR and Leadership.
+        - Detailed divisional risk metrics
+        - Targeted strategic insights for each division
+        """)
+        
+        # Top risk divisions with recommendations
+        st.dataframe(
+            division_risk[division_risk['Division'].isin(selected_divisions)].style
+            .format({
+                'Avg_Risk': '{:.2f}',
+                'Risk_Volatility': '{:.2f}',
+                'Avg_Strategic_Importance': '{:.2f}',
+                'Avg_Project_Complexity': '{:.2f}',
+                'Avg_Innovation_Score': '{:.2f}'
+            })
+            .background_gradient(cmap='Blues')
+        )
 
-    # High-Risk Employees Table
-    st.subheader('🚨 High-Risk Employees Detailed View')
-    high_risk_employees = filtered_df[filtered_df['Risk_Category'] == 'High'].sort_values('Attrition_Risk', ascending=False).head(10)
-    
-    if not high_risk_employees.empty:
-        st.dataframe(high_risk_employees, use_container_width=True)
-    else:
-        st.info("No high-risk employees found with current filters.")
+        # Strategic insights section
+        st.subheader('🔮 Divisional Risk Mitigation Strategies')
+        for division in selected_divisions:
+            if division in strategic_insights:
+                st.warning(f"**{division} Division Insights:**")
+                st.markdown(strategic_insights[division])
 
 if __name__ == "__main__":
     main()
