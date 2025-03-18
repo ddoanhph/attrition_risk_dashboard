@@ -1,0 +1,365 @@
+I am training a model to predict employee attrition. The data that I use to train the model have these columns:
+0   Corporate_ID                     6411 non-null   object 
+ 1   Action                           6405 non-null   object 
+ 2   Title                            249 non-null    object 
+ 3   First_Name                       6411 non-null   object 
+ 4   Last_Name                        6411 non-null   object 
+ 5   Preferred_First_Name             6411 non-null   object 
+ 6   Secondary_Last_Name              14 non-null     object 
+ 7   Gender                           6408 non-null   object 
+ 8   Year_of_Birth                    6411 non-null   int64  
+ 9   Age_Group                        6411 non-null   object 
+ 10  Region_of_Birth                  0 non-null      object 
+ 11  Country_Of_Birth                 4912 non-null   object 
+ 12  Country_of_Birth_ISO_2           4912 non-null   object 
+ 13  Country_of_Birth_ISO_3           5050 non-null   object 
+ 14  Nationality                      5454 non-null   object 
+ 15  Nationality_ISO_2                5454 non-null   object 
+ 16  Nationality_ISO_3                6408 non-null   object 
+ 17  Additional_Nationality           556 non-null    object 
+ 18  Additional_Nationality_ISO_2     556 non-null    object 
+ 19  Additional_Nationality_ISO_3     560 non-null    object 
+ 20  Position_ID                      6411 non-null   object 
+ 21  Position_Title                   6411 non-null   object 
+ 22  Position_Start_Date              6411 non-null   object 
+ 23  Blue_White_Collar                6399 non-null   object 
+ 24  Function                         4618 non-null   object 
+ 25  AI_OP_Driver                     4674 non-null   object 
+ 26  ADS_OP_Driver                    4674 non-null   object 
+ 27  AH_OP_Driver                     4674 non-null   object 
+ 28  Work_Email                       6385 non-null   object 
+ 29  Band                             6411 non-null   object 
+ 30  Band_Extension                   599 non-null    object 
+ 31  Active_Workforce_Status          6411 non-null   object 
+ 32  Company_Service_Date             5816 non-null   object 
+ 33  Hire_Date                        6411 non-null   object 
+ 34  Is_HRBP                          5805 non-null   object 
+ 35  Is_Manager                       6411 non-null   object 
+ 36  Local_HR_ID                      4616 non-null   object 
+ 37  Work_Mobile_Phone_Number         1183 non-null   object 
+ 38  Original_Hire_Date               6411 non-null   object 
+ 39  Professional_Category            17 non-null     object 
+ 40  Seniority_Date                   6102 non-null   object 
+ 41  Termination_Date                 1737 non-null   object 
+ 42  Termination_Reason               1737 non-null   object 
+ 43  Local_Termination_Reason         1737 non-null   object 
+ 44  Worker_Status                    6411 non-null   object 
+ 45  Worker_Type                      6411 non-null   object 
+ 46  Worker_Type_Category             6411 non-null   object 
+ 47  Location_ID                      6411 non-null   object 
+ 48  Location_Name                    6411 non-null   object 
+ 49  Location_City                    6411 non-null   object 
+ 50  Location_Region                  6411 non-null   object 
+ 51  Location_Zone                    6411 non-null   object 
+ 52  Location_Country                 6411 non-null   object 
+ 53  Location_Country_ISO_2           6411 non-null   object 
+ 54  Location_Country_ISO_3           6411 non-null   object 
+ 55  Is_Location_Active               6411 non-null   bool   
+ 56  Supervisory_Organisation_ID      6269 non-null   object 
+ 57  Supervisory_Organisation_Name    6265 non-null   object 
+ 58  Supervisory_Organisation_Siglum  6411 non-null   object 
+ 59  Job_Profile_ID                   6411 non-null   object 
+ 60  Job_Profile_Name                 6411 non-null   object 
+ 61  Job_Family_Group                 6104 non-null   object 
+ 62  Job_Family                       6011 non-null   object 
+ 63  Job_Category                     6093 non-null   object 
+ 64  HRBP_Corporate_ID                68 non-null     object 
+ 65  Establishment_ID                 6411 non-null   object 
+ 66  Establishment_Name               6411 non-null   object 
+ 67  Is_Establishment_Active          6411 non-null   bool   
+ 68  Cost_Center_Code                 6411 non-null   object 
+ 69  Financial_Entity_Code            6411 non-null   object 
+ 70  Full_Time_Equivalent_Percentage  6411 non-null   object 
+ 71  Legacy_SAP_ID                    5602 non-null   object 
+ 72  Company_Code                     6411 non-null   object 
+ 73  Company_Name                     6411 non-null   object 
+ 74  Company_Division                 6411 non-null   object 
+ 75  Company_Division_Short_ID        6411 non-null   object 
+ 76  Company_Country                  6411 non-null   object 
+ 77  Company_Country_ISO_2            6411 non-null   object 
+ 78  Company_Country_ISO_3            6411 non-null   object 
+ 79  Voluntary_Involuntary            6411 non-null   object 
+ 80  Local_Function                   6411 non-null   object 
+ 81  Expat_Indicator                  6411 non-null   object 
+ 82  Age                              6411 non-null   float64
+ 83  Age_When_Terminated              1737 non-null   float64
+ 84  Nationality_Count                6411 non-null   int64  
+ 85  Years_at_Current_Role            6411 non-null   float64
+ 86  Years_at_Company                 6411 non-null   float64
+ 87  Terminated                       6411 non-null   float64
+ 88  Numbers_Company_Transfer         6411 non-null   float64
+ 89  Numbers_Division_Transfer        6411 non-null   float64
+ 90  Temp_to_Direct                   6411 non-null   float64
+ 91  Requalification                  6411 non-null   float64
+ 92  Numbers_Terminated               6411 non-null   float64
+ 93  Attrition                        6411 non-null   int64
+
+
+This is the step that I use to build my model 
+
+#GENERAL
+import re
+import pandas as pd
+import numpy as np
+import seaborn as sns 
+import matplotlib.pyplot as plt
+import sklearn
+from scipy import stats
+from datetime import datetime
+
+#FEATURE EGNGG
+from sklearn import model_selection
+from sklearn.preprocessing import LabelEncoder
+#from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+#MODEL SELECTION
+from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import GridSearchCV
+
+#MODEL
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from xgboost import XGBClassifier
+
+
+df = pd.read_csv(‘employee_data.csv’)
+df['Attrition'] = df['Worker_Status'].apply(lambda x: 1 if x == 'Terminated' else 0)
+
+
+def create_cost_center_group(cost_center_code):
+    code = str(cost_center_code)
+    
+    # For EEDB_ prefix format
+    if code.startswith('EEDB_'):
+        # Extract first digits after the prefix
+        match = re.search(r'EEDB_(\d+)', code)
+        if match and match.group(1):
+            return f"EEDB_{match.group(1)[:2]}"
+        return "EEDB_OTHER"
+    
+    # For AA prefix format
+    elif code.startswith('AA'):
+        # Extract first digits after AA
+        match = re.search(r'AA(\d+)', code)
+        if match and match.group(1):
+            return f"AA_{match.group(1)[:2]}"
+        return "AA_OTHER"
+    
+    # For GA prefix format
+    elif code.startswith('GA'):
+        # Extract first digits after GA
+        match = re.search(r'GA(\d+)', code)
+        if match and match.group(1):
+            return f"GA_{match.group(1)[:2]}"
+        return "GA_OTHER"
+    
+    # For numeric cost centers
+    elif code.isdigit():
+        # Group by first two digits if long enough
+        if len(code) >= 2:
+            return f"NUM_{code[:2]}"
+        return "NUM_OTHER"
+    
+    # For any other format with letters followed by numbers, extract the letter prefix
+    elif re.match(r'^[A-Z]+\d+', code):
+        prefix = re.match(r'^([A-Z]+)\d+', code).group(1)
+        return f"{prefix}_GROUP"
+    
+    # For any other format, return first 2-4 chars as group
+    else:
+        prefix = code[:min(4, len(code))]
+        return f"OTHER_{prefix}"
+
+def engineer_features(df):
+    df_new = df.copy()
+    
+    # Convert Band to numeric
+    band_mapping = {
+        'BZ': 1,    
+        'BII': 2,    
+        'BIII': 3,    
+        'BIV': 4,  
+        'BV': 5
+    }
+    df_new['Band_Numeric'] = df_new['Band'].map(band_mapping)
+    
+    # Convert Is_Manager to numeric
+    df_new['Is_Manager_Numeric'] = (df_new['Is_Manager'] == 'true').astype(int)
+
+    # 1. Temporal Features
+    # Career progression rate
+    df_new['Career_Progression_Rate'] = df_new['Years_at_Company'] / df_new['Age']
+    
+    # df_new['Years_at_Other_Roles'] = df_new['Years_at_Company'] - df_new['Years_at_Current_Role']
+    
+    # Bin years of experience
+    df_new['Years_at_Company_Bin'] = pd.qcut(df_new['Years_at_Company'], q=5, labels=['Very New', 'New', 'Medium', 'Experienced', 'Very Experienced'])
+    df_new['Years_at_Role_Bin'] = pd.qcut(df_new['Years_at_Current_Role'], q=5, labels=['Very New', 'New', 'Medium', 'Experienced', 'Very Experienced'])
+    
+    # 2. Career Development Indicators
+    # Role change rate
+    df_new['Role_Change_Rate'] = df_new['Numbers_Company_Transfer'] / df_new['Years_at_Company']
+    df_new['Role_Change_Rate'] = df_new['Role_Change_Rate'].fillna(0)
+    
+    # Division transfer rate
+    df_new['Division_Transfer_Rate'] = df_new['Numbers_Division_Transfer'] / df_new['Years_at_Company']
+    df_new['Division_Transfer_Rate'] = df_new['Division_Transfer_Rate'].fillna(0)
+    
+    # Career growth score (using numeric versions)
+        # Band_Numeric: Higher band means more seniority → contributes positively.
+        # Is_Manager_Numeric * 2: Being a manager is given extra weight → contributes more if the person is a manager.
+        # Years_at_Company: More years = more experience → contributes if the person has more years than the median.
+    df_new['Career_Growth_Score'] = df_new['Band_Numeric'] + \
+                                   df_new['Is_Manager_Numeric'] * 2 + \
+                                   (df_new['Years_at_Company'] > df_new['Years_at_Company'].median()).astype(int)
+    
+    # 3. Demographic Interactions
+    # Age-Band interaction
+    df_new['Age_Band_Interaction'] = df_new['Age_Group'].astype(str) + '_Band_' + df_new['Band'].astype(str)
+    
+    # Career stage
+    df_new['Career_Stage'] = df_new['Age_Group'].astype(str) + '_' + df_new['Years_at_Company_Bin'].astype(str)
+    
+    # Gender-Professional Category interaction
+    df_new['Gender_Prof_Category'] = df_new['Gender'].astype(str) + '_' + df_new['Professional_Category'].astype(str)
+    
+    # 4. Location and Organization
+    # Location-Division interaction
+    df_new['Location_Division'] = df_new['Location_Region'].astype(str) + '_' + df_new['Company_Division'].astype(str)
+    
+    # Department size (number of employees per Supervisory Organisation)
+    dept_size = df_new.groupby('Supervisory_Organisation_Siglum').size()
+    df_new['Department_Size'] = df_new['Supervisory_Organisation_Siglum'].map(dept_size)
+    
+    # Cost center grouping (group into larger categories based on first two digits)
+    df_new['Cost_Center_Group'] = df_new['Cost_Center_Code'].astype(str).str[:2]
+    
+    # 5. Employment Status Features
+    # Employment complexity score (modified for categorical Expat_Indicator)
+    #Whether they are an expat (which can add legal and logistical complexity),
+    #The number of nationalities they are associated with 
+    #(which might affect legal, tax, or cultural complexities)
+    #Whether they are located in a less common region -> additional operational challenges.
+    df_new['Employment_Complexity'] = (df_new['Expat_Indicator'] != 'Not Expat/Local+').astype(int) + \
+                                    df_new['Nationality_Count'] + \
+                                    (df_new['Location_Region'] != df_new['Location_Region'].mode()[0]).astype(int)
+    
+    # Convert Full_Time_Equivalent_Percentage to numeric
+    df_new['FTE_Numeric'] = pd.to_numeric(df_new['Full_Time_Equivalent_Percentage'], errors='coerce') / 100
+    
+    # Full-time status score
+    #reflects both seniority and work commitment. 
+    #By normalizing the band value to a scale from 0 to 1 -> ensure the score is relative,
+    df_new['Employment_Status_Score'] = df_new['FTE_Numeric'] * (df_new['Band_Numeric'] / df_new['Band_Numeric'].max())
+    
+    # 6. Additional Ratios and Indicators
+    # Role stability indicator
+    df_new['Role_Stability'] = (df_new['Years_at_Current_Role'] / df_new['Years_at_Company']).fillna(1)
+    
+    # Career velocity (promotions per year)
+    df_new['Career_Velocity'] = df_new['Band_Numeric'] / df_new['Years_at_Company']
+    df_new['Career_Velocity'] = df_new['Career_Velocity'].fillna(0)
+    
+    # Create dummies for categorical variables with low cardinality
+#     categorical_cols = ['Blue_White_Collar', 'Company_Division', 'Expat_Indicator']
+#     df_new = pd.get_dummies(df_new, columns=categorical_cols, prefix=categorical_cols)
+    
+    return df_new
+
+# Apply feature engineering to the training data
+train_df_engineered = engineer_features(df)
+df = train_df_engineered
+
+drop_columns = ['Title', 'First_Name', 'Last_Name', 'Preferred_First_Name', 'Secondary_Last_Name','Year_of_Birth', 
+                'Region_of_Birth', 'Country_Of_Birth','Country_of_Birth_ISO_2', 'Country_of_Birth_ISO_3', 'Nationality',
+                'Nationality_ISO_2', 'Nationality_ISO_3', 'Additional_Nationality', 'Additional_Nationality_ISO_2', 
+                'Additional_Nationality_ISO_3', 'Position_ID', 'Position_Title', 'Position_Start_Date','AI_OP_Driver', 
+                'ADS_OP_Driver', 'AH_OP_Driver', 'Work_Email', 'Band_Extension', 'Company_Service_Date', 'Hire_Date',
+                'Is_HRBP', 'Is_Manager', 'Local_HR_ID', 'Work_Mobile_Phone_Number', 'Original_Hire_Date', 'Seniority_Date', 
+                'Termination_Date', 'Termination_Reason', 'Worker_Status', 'Location_ID', 'Location_Name', 'Location_City', 
+                'Location_Zone', 'Location_Country', 'Location_Country_ISO_2', 'Location_Country_ISO_3', 'Is_Location_Active',
+                'Supervisory_Organisation_ID', 'Supervisory_Organisation_Name', 'Job_Family', 'Job_Profile_ID', 'Job_Profile_Name',
+                'HRBP_Corporate_ID', 'Establishment_ID', 'Establishment_Name', 'Is_Establishment_Active', 'Legacy_SAP_ID', 
+                'Company_Name', 'Company_Division_Short_ID', 'Company_Country', 'Company_Country_ISO_2','Company_Country_ISO_3', 
+               'Terminated', 'Age_When_Terminated', 'Numbers_Terminated', 'Function', 'Worker_Type_Category', 'Worker_Type', 
+               'Active_Workforce_Status', 'Local_Termination_Reason', 'Voluntary_Involuntary', 'Band', 'Full_Time_Equivalent_Percentage',
+               'Age_Group', 'Gender', 'Financial_Entity_Code', 'Cost_Center_Code', 'Years_at_Company', 'Years_at_Current_Role'
+                ,'Professional_Category', 'Company_Division', 'Location_Region', 'Action']
+train_df = df
+train_df = train_df.drop(drop_columns, axis=1)
+train_df.info()
+from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+for col in train_df.select_dtypes(include=['object', 'category']).columns:
+    train_df[col] = le.fit_transform(train_df[col])
+
+x = train_df.drop(['Corporate_ID', 'Attrition'] ,axis =1)
+y = train_df['Attrition']
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=1)
+
+sc = StandardScaler()
+x_train = sc.fit_transform(x_train)
+x_test = sc.transform(x_test)
+
+dt = DecisionTreeClassifier().fit(x_train,y_train)
+et = ExtraTreesClassifier(n_estimators=100, random_state=42).fit(x_train, y_train)
+rf = RandomForestClassifier().fit(x_train,y_train)
+xgb = XGBClassifier().fit(x_train,y_train)
+gb = GradientBoostingClassifier().fit(x_train,y_train)
+
+train_scores = []
+test_scores = []
+models = [dt,et,rf,xgb,gb]
+for model in models:
+    y_pred_test = model.predict(x_test)
+    y_pred_train = model.predict(x_train)
+    test_scores.append(accuracy_score(y_test,y_pred_test))
+    train_scores.append(accuracy_score(y_train,y_pred_train))
+    
+model_performance = pd.DataFrame(index=["Decision Tree", "Extra Tree", "Random Forest", 
+                                        "XGBoost", "Gradient Boosting"],
+                                 data={"Train accuracy":train_scores,"Test accuracy":test_scores})
+model_performance.sort_values('Test accuracy', ascending=False)
+
+I got this result:
+
+
+Train accuracy
+Test accuracy
+
+
+Gradient Boosting
+0.937460
+0.936426
+XGBoost
+0.987965
+0.929553
+Random Forest
+1.000000
+0.928694
+Extra Tree
+1.000000
+0.926117
+Decision Tree
+1.000000
+0.883162
+
+I decided to use Gradient Boosting. 
+Now, I need to save my model for production. How to do that?
+What steps in should include in my model?
+
+
+
+
