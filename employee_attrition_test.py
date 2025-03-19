@@ -207,7 +207,7 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("Top Attrition Risk Factors")
     fig = px.bar(feature_importance.head(5), x='Importance', y='Feature', orientation='h', labels={'Importance': 'Relative Importance', 'Feature': ''}, color='Importance', color_continuous_scale=px.colors.sequential.Blues)
-    fig.update_layout(low=300, yaxis=dict(autorange="reversed"), coloraxis_showscale=False)
+    fig.update_layout(height=300, yaxis=dict(autorange="reversed"), coloraxis_showscale=False)
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
